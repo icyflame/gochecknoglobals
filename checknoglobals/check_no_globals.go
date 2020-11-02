@@ -60,6 +60,11 @@ func isAllowed(v ast.Node) bool {
 		if expr, ok := i.Type.(*ast.SelectorExpr); ok {
 			return isAllowedSelectorExpression(expr)
 		}
+
+		// Allow global map declarations
+		if _, ok := i.Type.(*ast.MapType); ok {
+			return true
+		}
 	}
 
 	return false
