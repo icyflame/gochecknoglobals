@@ -51,7 +51,7 @@ func flags() flag.FlagSet {
 func isAllowed(v ast.Node) bool {
 	switch i := v.(type) {
 	case *ast.Ident:
-		return i.Name == "_" || i.Name == "version" || looksLikeError(i)
+		return i.Name == "_" || i.Name == "version" || looksLikeError(i) || looksLikeBuild(i)
 	case *ast.CallExpr:
 		if expr, ok := i.Fun.(*ast.SelectorExpr); ok {
 			return isAllowedSelectorExpression(expr)
@@ -101,6 +101,11 @@ func looksLikeError(i *ast.Ident) bool {
 	return strings.HasPrefix(i.Name, prefix)
 }
 
+// looksLikeBuild returns whether this identifier name looks like something that is passed in as a
+// build variable
+func looksLikeBuild(i *ast.Ident) bool {
+	return i.IsExported() && strings.HasPrefix(i.Name, "Build")
+}
 func checkNoGlobals(pass *analysis.Pass) (interface{}, error) {
 	includeTests := pass.Analyzer.Flags.Lookup("t").Value.(flag.Getter).Get().(bool)
 
